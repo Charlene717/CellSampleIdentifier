@@ -10,6 +10,8 @@ suppressPackageStartupMessages({
 
 # ---------- 0) 基本設定（依需求可調整） ----------
 # 你的 Seurat 物件名稱請為 seuratObject_Sample，且 meta.data 內有 sample_id 欄位
+# seuratObject_Sample@meta.data$sample_id <- seuratObject_Sample@meta.data$orig.ident
+
 stopifnot(exists("seuratObject_Sample"))
 if (!"sample_id" %in% colnames(seuratObject_Sample@meta.data)) {
   stop("seuratObject_Sample@meta.data 缺少 'sample_id' 欄位")
@@ -122,8 +124,8 @@ if (length(score_names) == 0) stop("沒有成功產生任何 ModuleScore 欄位�
 # ---------- 3) 匯總到 sample 層級（median） + Z-score ----------
 score_df <- FetchData(seuratObject_Sample, vars = c("sample_id", score_names))
 score_sample <- score_df %>%
-  group_by(sample_id) %>%
-  summarise(across(all_of(score_names), median, na.rm = TRUE), .groups = "drop")
+  dplyr::group_by(sample_id) %>%
+  dplyr::summarise(across(all_of(score_names), median, na.rm = TRUE), .groups = "drop")
 
 # Z-score（跨 signature 可比）
 score_z <- scale(score_sample[,-1]) %>% as.data.frame()
