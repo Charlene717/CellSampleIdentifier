@@ -230,22 +230,22 @@ message("已輸出：", normalizePath(file.path(out_dir, "sensitivity_summary.cs
 message("已輸出：", normalizePath(file.path(out_dir, "sensitivity_counts.csv")))
 
 ## -------------------------------
-## 6) 視覺化（不使用 desc 排序）
+## 6) Visualization（不使用 desc 排序）
 ## -------------------------------
-# (a) 穩定度長條圖（依 stability 降冪的 factor level）
+# (a) Stability barplot（依 stability 降冪的 factor level）
 summary_df$sample_id <- factor(summary_df$sample_id, levels = summary_df$sample_id)
 p_stab <- ggplot(summary_df, aes(x=sample_id, y=stability, fill=agree_with_baseline)) +
   geom_col(width=0.7) +
   coord_flip() +
   scale_y_continuous(limits=c(0,1), expand=c(0,0)) +
   scale_fill_manual(values=c("TRUE"="#1F78B4","FALSE"="#E31A1C"),
-                    labels=c("FALSE"="≠ 基準","TRUE"="= 基準")) +
+                    labels=c("FALSE"="≠ Baseline","TRUE"="= Baseline")) +
   labs(x=NULL, y="Stability (majority proportion)", fill=NULL,
-       title="Sample-level 分組穩定度（權重擾動敏感度）") +
+       title="Sample-level Stability under Perturbation") +
   theme_minimal(base_size = 13)
 ggsave(file.path(out_dir, "stability_barplot.png"), p_stab, width=7, height=6, dpi=300)
 
-# (b) 各 sample 三類比例堆疊圖（依 summary_df 的順序顯示）
+# (b) Stacked barplot of class proportions（依 summary_df 的順序顯示）
 counts_long <- counts_df |>
   dplyr::select(sample_id, Keloid, Normal, `Post-Tx`) |>
   tidyr::pivot_longer(-sample_id, names_to="Class", values_to="Count") |>
@@ -261,7 +261,7 @@ p_stack <- ggplot(counts_long, aes(x=sample_id, y=Prop, fill=Class)) +
   scale_y_continuous(expand=c(0,0)) +
   scale_fill_manual(values=c("Keloid"="#F8766D","Normal"="#00BA38","Post-Tx"="#619CFF")) +
   labs(x=NULL, y="Proportion across iterations", fill=NULL,
-       title="權重擾動下各 sample 的分類比例") +
+       title="Class Proportions under Perturbation") +
   theme_minimal(base_size = 13)
 ggsave(file.path(out_dir, "stacked_props.png"), p_stack, width=7, height=6, dpi=300)
 
