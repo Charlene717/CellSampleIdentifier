@@ -313,3 +313,60 @@ ggplot(cell_prop, aes(x = sample_type, y = prop, fill = Cell_Type)) +
     panel.grid = element_blank(),
     legend.position = "right"
   )
+
+
+
+
+
+
+################################################################################
+###############################################################################
+## 繪製每個 sample_type 中各 Cell_Type 的組成比例 (堆疊長條圖，指定顏色)
+###############################################################################
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+
+# 轉成標準 data.frame
+meta_df <- data.frame(seuratObject_Sample@meta.data)
+
+# 計算每個 sample_type 各 Cell_Type 的比例
+cell_prop <- meta_df %>%
+  dplyr::count(sample_type, Cell_Type) %>%
+  dplyr::group_by(sample_type) %>%
+  dplyr::mutate(prop = n / sum(n)) %>%
+  dplyr::ungroup()
+
+# 指定 sample_type 的顯示順序
+cell_prop$sample_type <- factor(cell_prop$sample_type,
+                                levels = c("Post-Tx", "Keloid", "Normal"))
+
+# 設定固定顏色（可依需求調整）
+cell_colors <- c(
+  "Keratinocytes"          = "#1F78B4",  # 藍
+  "Fibroblasts"            = "#FF7F00",  # 橘
+  # "Langerhans cells"       = "#33A02C",  # 綠
+  # "Mononuclear phagocytes" = "#A65628",  # 棕
+  "Endothelial cells"      = "#A65628",  # 棕
+  "Mast cells"             = "#E31A1C",  # 紅
+  "Melanocytes"            = "#FB9A99",  # 粉
+  "Pericytes/SMCs"         = "#6A3D9A",  # 紫
+  "Schwann cells"          = "#B2DF8A",  # 淺綠
+  "T Cells"                = "#1B9E77",  # 青綠
+  "Monocytes"              = "#4c8a77",  # 青綠
+  "Epithelial cells"       = "#FDBF6F"   # 淡橘（補上）
+)
+
+# 畫圖
+ggplot(cell_prop, aes(x = sample_type, y = prop, fill = Cell_Type)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  scale_fill_manual(values = cell_colors) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = NULL, y = "Proportion", fill = NULL) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    panel.grid = element_blank(),
+    legend.position = "right"
+  )
+
